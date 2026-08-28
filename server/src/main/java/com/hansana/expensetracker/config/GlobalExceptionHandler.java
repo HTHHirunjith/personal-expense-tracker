@@ -1,5 +1,6 @@
 package com.hansana.expensetracker.config;
 
+import com.hansana.expensetracker.exception.ResourceAccessException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,15 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResourceAccessException.class)
+    public ResponseEntity<Map<String, Object>> handleResourceAccess(ResourceAccessException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("status", ex.getStatus().value());
+        body.put("message", ex.getMessage());
+
+        return ResponseEntity.status(ex.getStatus()).body(body);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {

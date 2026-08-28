@@ -1,14 +1,15 @@
 package com.hansana.expensetracker.services.impl;
 
 import com.hansana.expensetracker.domain.entities.User;
-import com.hansana.expensetracker.dtos.requests.LoginRequest;
 import com.hansana.expensetracker.dtos.requests.UserRequest;
 import com.hansana.expensetracker.dtos.responses.UserDTO;
+import com.hansana.expensetracker.exception.ResourceAccessException;
 import com.hansana.expensetracker.mappers.UserMapper;
 import com.hansana.expensetracker.repositories.UserRepository;
 import com.hansana.expensetracker.services.UserService;
+import com.hansana.expensetracker.util.AuthenticatedUserProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,18 +23,25 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final UserRepository userRepository;
+    private final AuthenticatedUserProvider authenticatedUserProvider;
 
     @Override
     public List<UserDTO> getAllUsers() {
-        return userRepository.findAll().stream().map(userMapper::toDto).collect(Collectors.toList());
+        throw new ResourceAccessException(HttpStatus.FORBIDDEN, "Access denied");
     }
 
     @Override
     public UserDTO getProfile(String email) {
+        User authenticatedUser = authenticatedUserProvider.getAuthenticatedUser();
+
+        if(email == null || !email.equals(authenticatedUser.getEmail())) {
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
         Optional<User> user = userRepository.findByEmail(email);
 
         if(user.isEmpty()) {
-            throw new IllegalArgumentException("User not found");
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "User not found");
         }
 
         return userMapper.toDto(user.get());
@@ -42,10 +50,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO updateUser(UUID id, UserRequest request) {
+        User authenticatedUser = authenticatedUserProvider.getAuthenticatedUser();
+
+        if(id == null || !id.equals(authenticatedUser.getId())) {
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
         Optional<User> user = userRepository.findById(id);
 
         if(user.isEmpty()) {
-            throw new IllegalArgumentException("User not found");
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "User not found");
         }
 
         User savedUser = user.get();
@@ -61,8 +75,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String deleteUser(UUID id) {
-        if(id == null) {
-            throw new IllegalArgumentException("ID must be provided");
+        User authenticatedUser = authenticatedUserProvider.getAuthenticatedUser();
+
+        if(id == null || !id.equals(authenticatedUser.getId())) {
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "User not found");
         }
 
         userRepository.deleteById(id);

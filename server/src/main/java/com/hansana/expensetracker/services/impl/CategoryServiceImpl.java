@@ -4,11 +4,13 @@ import com.hansana.expensetracker.domain.entities.Category;
 import com.hansana.expensetracker.domain.entities.User;
 import com.hansana.expensetracker.dtos.requests.CategoryRequest;
 import com.hansana.expensetracker.dtos.responses.CategoryDTO;
+import com.hansana.expensetracker.exception.ResourceAccessException;
 import com.hansana.expensetracker.mappers.CategoryMapper;
 import com.hansana.expensetracker.repositories.CategoryRepository;
 import com.hansana.expensetracker.services.CategoryService;
 import com.hansana.expensetracker.util.AuthenticatedUserProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -64,16 +66,26 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDTO getCategoryById(UUID id) {
         if(id == null) {
-            throw new IllegalArgumentException("ID must be provided");
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "Category not found");
         }
+
+        User user = authenticatedUserProvider.getAuthenticatedUser();
 
         Optional<Category> categorySaved = categoryRepository.findById(id);
 
         if(categorySaved.isEmpty()) {
-            throw new IllegalArgumentException("Category not found");
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "Category not found");
         }
 
-        return categoryMapper.toDTO(categorySaved.get());
+        Category category = categorySaved.get();
+        boolean isDefault = Boolean.TRUE.equals(category.getIsDefault());
+        boolean ownedByUser = category.getUser() != null && category.getUser().getId().equals(user.getId());
+
+        if(!isDefault && !ownedByUser) {
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "Category not found");
+        }
+
+        return categoryMapper.toDTO(category);
     }
 
     @Override
@@ -81,19 +93,21 @@ public class CategoryServiceImpl implements CategoryService {
         User user = authenticatedUserProvider.getAuthenticatedUser();
 
         if(id == null) {
-            throw new IllegalArgumentException("ID must be provided");
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "Category not found");
         }
 
         Optional<Category> categorySaved = categoryRepository.findById(id);
 
         if(categorySaved.isEmpty()) {
-            throw new IllegalArgumentException("Category not found");
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "Category not found");
         }
 
         Category updatedCategory = categorySaved.get();
 
-        if(!updatedCategory.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized to update this category");
+        boolean ownedByUser = updatedCategory.getUser() != null
+                && updatedCategory.getUser().getId().equals(user.getId());
+        if(!ownedByUser) {
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "Category not found");
         }
 
         updatedCategory.setName(request.getName());
@@ -109,7 +123,21 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public String deleteCategory(UUID id) {
         if(id == null) {
-            throw new IllegalArgumentException("ID must be provided");
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "Category not found");
+        }
+
+        User user = authenticatedUserProvider.getAuthenticatedUser();
+
+        Optional<Category> categorySaved = categoryRepository.findById(id);
+
+        if(categorySaved.isEmpty()) {
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "Category not found");
+        }
+
+        Category category = categorySaved.get();
+        boolean ownedByUser = category.getUser() != null && category.getUser().getId().equals(user.getId());
+        if(!ownedByUser) {
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "Category not found");
         }
 
         categoryRepository.deleteById(id);

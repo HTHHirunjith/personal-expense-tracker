@@ -5,6 +5,7 @@ import com.hansana.expensetracker.domain.entities.Transaction;
 import com.hansana.expensetracker.domain.entities.User;
 import com.hansana.expensetracker.dtos.requests.TransactionRequest;
 import com.hansana.expensetracker.dtos.responses.TransactionDTO;
+import com.hansana.expensetracker.exception.ResourceAccessException;
 import com.hansana.expensetracker.mappers.TransactionMapper;
 import com.hansana.expensetracker.repositories.CategoryRepository;
 import com.hansana.expensetracker.repositories.TransactionRepository;
@@ -12,6 +13,7 @@ import com.hansana.expensetracker.services.TransactionService;
 import com.hansana.expensetracker.util.AuthenticatedUserProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -61,7 +63,13 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionDTO createTransaction(TransactionRequest transactionRequest) {
         User user = authenticatedUserProvider.getAuthenticatedUser();
         Category category = categoryRepository.findById(transactionRequest.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new ResourceAccessException(HttpStatus.NOT_FOUND, "Category not found"));
+
+        boolean isDefault = Boolean.TRUE.equals(category.getIsDefault());
+        boolean ownedByUser = category.getUser() != null && category.getUser().getId().equals(user.getId());
+        if (!isDefault && !ownedByUser) {
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "Category not found");
+        }
 
         Transaction transaction = Transaction.builder()
                 .title(transactionRequest.getTitle())
@@ -80,13 +88,19 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TransactionDTO getTransaction(UUID id) {
         if(id == null) {
-            throw new IllegalArgumentException("ID must be provided");
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "Transaction not found");
         }
+
+        User user = authenticatedUserProvider.getAuthenticatedUser();
 
         Optional<Transaction> transaction = transactionRepository.findById(id);
 
         if(transaction.isEmpty()) {
-            throw new IllegalArgumentException("Transaction not found");
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "Transaction not found");
+        }
+
+        if(!transaction.get().getUser().getId().equals(user.getId())) {
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "Transaction not found");
         }
 
         return transactionMapper.toDTO(transaction.get());
@@ -95,17 +109,24 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TransactionDTO updateTransaction(UUID id, TransactionRequest request) {
         User user = authenticatedUserProvider.getAuthenticatedUser();
-        Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
 
         if(id == null) {
-            throw new IllegalArgumentException("ID must be provided");
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "Transaction not found");
         }
 
         Optional<Transaction> transactionSaved = transactionRepository.findById(id);
 
-        if(transactionSaved.isEmpty()) {
-            throw new IllegalArgumentException("User not found");
+        if(transactionSaved.isEmpty() || !transactionSaved.get().getUser().getId().equals(user.getId())) {
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "Transaction not found");
+        }
+
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new ResourceAccessException(HttpStatus.NOT_FOUND, "Category not found"));
+
+        boolean isDefault = Boolean.TRUE.equals(category.getIsDefault());
+        boolean ownedByUser = category.getUser() != null && category.getUser().getId().equals(user.getId());
+        if (!isDefault && !ownedByUser) {
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "Category not found");
         }
 
         Transaction transaction = transactionSaved.get();
@@ -122,6 +143,14 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public String deleteTransaction(UUID id) {
+        User user = authenticatedUserProvider.getAuthenticatedUser();
+
+        Optional<Transaction> transaction = transactionRepository.findById(id);
+
+        if(transaction.isEmpty() || !transaction.get().getUser().getId().equals(user.getId())) {
+            throw new ResourceAccessException(HttpStatus.NOT_FOUND, "Transaction not found");
+        }
+
         transactionRepository.deleteById(id);
         return "Transaction deleted successfully";
     }
