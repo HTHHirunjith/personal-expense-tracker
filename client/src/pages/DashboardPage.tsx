@@ -34,7 +34,7 @@ const DashboardPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className='flex flex-col p-4 w-4/5 mb-10'>
+      <div className='flex-1 min-w-0 flex flex-col p-4 mb-10'>
         <TotalCardList />
         <BarChartComponent transactions={transactions} />
         <TransactionsTable />

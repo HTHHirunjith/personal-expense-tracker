@@ -10,6 +10,7 @@ import {
   CartesianGrid,
 } from 'recharts'
 import type { Transaction } from '../../types/dashboard'
+import { formatAmount } from '../../utils/formatAmount'
 
 interface BarChartProps {
   transactions: Transaction[]
@@ -46,7 +47,7 @@ const BarChartComponent: React.FC<BarChartProps> = ({ transactions }) => {
           <Tooltip
             contentStyle={{ backgroundColor: '#f9fafb', borderColor: '#cbd5e1' }}
             labelStyle={{ color: '#334155', fontWeight: 600 }}
-            formatter={(value: number) => `$${value.toFixed(2)}`}
+            formatter={(value: number) => formatAmount(value, 'USD')}
           />
           <Bar dataKey="total" radius={[4, 4, 0, 0]}>
             {data.map((entry, index) => (

@@ -84,7 +84,7 @@ const TransactionsTable: React.FC = () => {
               .map((transaction, index) => (
                 <tr key={transaction.id} className={index % 2 !== 0 ? 'bg-gray-100' : ''}>
                   <td className='p-2 text-xs'>{transaction.title}</td>
-                  <td className='p-2 text-xs'>{formatAmount(transaction.amount, 'ARS')}</td>
+                  <td className='p-2 text-xs'>{formatAmount(transaction.amount, 'USD')}</td>
                   <td className='p-2 text-xs'>
                     <div>
                       <div className='inline-block h-2 w-2 rounded-full mr-2' style={{ backgroundColor: transaction.category.color }}></div>

@@ -11,7 +11,7 @@ const Rightbar: React.FC = () => {
   useEffect(() => {}, [transactions.length])
 
   return (
-    <aside className='flex h-screen flex-col bg-white p-4 w-68 ml-auto fixed right-0 rounded-b-md'>
+    <aside className='flex flex-col bg-white p-4 w-72 ml-4 rounded-b-md'>
       <GeneralBalanceCard totalTransactions={transactions.length} />
       <Button
         label='Add Transaction'
