@@ -3,6 +3,7 @@ package com.hansana.expensetracker.controllers;
 import com.hansana.expensetracker.dtos.requests.TransactionRequest;
 import com.hansana.expensetracker.dtos.responses.TransactionDTO;
 import com.hansana.expensetracker.services.TransactionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<TransactionDTO> createTransaction(@RequestBody TransactionRequest request) {
+    public ResponseEntity<TransactionDTO> createTransaction(@Valid @RequestBody TransactionRequest request) {
         System.out.println(request);
         try {
             return ResponseEntity.status(HttpStatus.OK).body(transactionService.createTransaction(request));
@@ -56,7 +57,7 @@ public class TransactionController {
     @PutMapping(path = "/{id}")
     public ResponseEntity<TransactionDTO> updateTransaction(
             @PathVariable UUID id,
-            @RequestBody TransactionRequest request
+            @Valid @RequestBody TransactionRequest request
     ) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(transactionService.updateTransaction(id, request));

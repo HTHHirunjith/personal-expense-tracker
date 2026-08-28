@@ -15,11 +15,17 @@ interface LayoutProps {
   children: React.ReactNode
 }
 
+const isTransactionAmountValid = (value: unknown): boolean => {
+  if (value === '' || value === null || value === undefined) return false
+  const num = Number(value)
+  return !Number.isNaN(num) && num > 0
+}
+
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { categories, getAllCategories } = useCategoryStore((state) => state)
   const [error, setError] = useState({
     title: false,
-    amount: false,
+    amount: !isTransactionAmountValid(0),
     type: false,
     description: false,
     categoryId: false
@@ -73,7 +79,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       setEditFeedback(null)
       setError({
         title: false,
-        amount: false,
+        amount: !isTransactionAmountValid(editingTransaction.amount),
         type: false,
         description: false,
         categoryId: false
@@ -82,22 +88,24 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, [isEditTransactionFormOpen, editingTransaction])
 
   const handleTransactionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value
     setTransactionInput({
       ...transactionInput,
-      [event.target.name]: event.target.value
+      [event.target.name]: value
     })
 
-    if (event.target.value === '') {
-      setError({
-        ...error,
-        [event.target.name]: true
-      })
+    let fieldError = false
+
+    if (event.target.name === 'amount') {
+      fieldError = !isTransactionAmountValid(value)
     } else {
-      setError({
-        ...error,
-        [event.target.name]: false
-      })
+      fieldError = value === ''
     }
+
+    setError({
+      ...error,
+      [event.target.name]: fieldError
+    })
   }
 
   const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -140,6 +148,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       if (response.data) {
         setTransaction(response.data)
         setTransactionInput({ title: '', amount: 0, type: 'EXPENSE', description: '', categoryId: '' })
+        setError((prev) => ({ ...prev, amount: !isTransactionAmountValid(0) }))
         closeCreateTransactionModal()
       } else {
         console.log(response.error)

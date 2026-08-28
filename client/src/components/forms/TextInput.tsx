@@ -8,9 +8,11 @@ interface TextInputProps {
   name: string
   value: string | number | readonly string[] | undefined
   required?: boolean
+  min?: number | string
+  step?: number | string
 }
 
-const TextInput: React.FC<TextInputProps> = ({ label, placeholder, onChange, type, name, value, required }) => {
+const TextInput: React.FC<TextInputProps> = ({ label, placeholder, onChange, type, name, value, required, min, step }) => {
   return (
     <div className='flex flex-col gap-1.5'>
       <label className='text-sm font-medium text-slate-700'>{label}</label>
@@ -22,6 +24,8 @@ const TextInput: React.FC<TextInputProps> = ({ label, placeholder, onChange, typ
         name={name}
         value={value}
         required={required}
+        min={min}
+        step={step}
       />
     </div>
   )

@@ -55,8 +55,10 @@ const EditTransactionForm: React.FC<EditTransactionFormProps> = ({
           name='amount'
           value={transactionInput.amount}
           required
+          min='0.01'
+          step='any'
         />
-        {error.amount && <p className='text-xs text-red-500'>Amount is required</p>}
+        {error.amount && <p className='text-xs text-red-500'>Amount must be greater than zero</p>}
       </div>
       <div className='flex flex-col gap-1.5'>
         <SelectInput
