@@ -49,65 +49,110 @@ const TransactionsTable: React.FC = () => {
   }, [currentDate])
 
   return (
-    <div className='bg-white p-10 rounded-2xl shadow-md'>
-      <div className='flex items-center justify-between px-4'>
-        <h1 className='mb-4 text-2xl font-semibold gap-4'>
-          Transactions
-        </h1>
-        <div className='flex items-center gap-2'>
-          <button onClick={goToPreviousDay} className='text-3xl cursor-pointer'>◁</button>
-          <span className='text-sm'>{currentDate.toLocaleDateString()}</span>
-          <button onClick={goToNextDay} className='text-3xl cursor-pointer'>▷</button>
+    <div className='w-full bg-white rounded-xl border border-slate-200 shadow-sm p-5'>
+      <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+        <div>
+          <h2 className='text-lg font-semibold text-slate-800'>Transactions</h2>
+          <p className='text-sm text-slate-500'>Transactions for the selected day.</p>
+        </div>
+        <div className='flex items-center gap-1'>
+          <button
+            onClick={goToPreviousDay}
+            className='flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition-colors hover:bg-slate-50 cursor-pointer'
+          >
+            ◁
+          </button>
+          <span className='whitespace-nowrap px-2 text-sm font-medium text-slate-700'>
+            {currentDate.toLocaleDateString()}
+          </span>
+          <button
+            onClick={goToNextDay}
+            className='flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition-colors hover:bg-slate-50 cursor-pointer'
+          >
+            ▷
+          </button>
         </div>
       </div>
-      <table className='w-full'>
-        <thead>
-          <tr className='bg-gray-200'>
-            <th className='p-2 text-left text-sm font-medium'>Title</th>
-            <th className='p-2 text-left text-sm font-medium'>Amount</th>
-            <th className='p-2 text-left text-sm font-medium'>Category</th>
-            <th className='p-2 text-left text-sm font-medium'>Type</th>
-            <th className='p-2 text-left text-sm font-medium'>Date</th>
-            <th className='p-2 text-left text-sm font-medium'>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {dailyTransactions.length === 0 ? (
-            <tr>
-              <td colSpan={5} className="text-center py-4 text-gray-500">
-                There is no transactions for this day
-              </td>
+
+      <div className='mt-5 overflow-x-auto'>
+        <table className='w-full text-left'>
+          <thead>
+            <tr className='border-b border-slate-200 bg-slate-50'>
+              <th className='px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide'>Title</th>
+              <th className='px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide'>Amount</th>
+              <th className='px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide'>Category</th>
+              <th className='px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide'>Type</th>
+              <th className='px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide'>Date</th>
+              <th className='px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide'>Actions</th>
             </tr>
-          ) : (
-            dailyTransactions
-              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-              .map((transaction, index) => (
-                <tr key={transaction.id} className={index % 2 !== 0 ? 'bg-gray-100' : ''}>
-                  <td className='p-2 text-xs'>{transaction.title}</td>
-                  <td className='p-2 text-xs'>{formatAmount(transaction.amount, 'USD')}</td>
-                  <td className='p-2 text-xs'>
-                    <div>
-                      <div className='inline-block h-2 w-2 rounded-full mr-2' style={{ backgroundColor: transaction.category.color }}></div>
-                      {transaction.category.name}
-                    </div>
-                  </td>
-                  <td className={`p-2 text-xs`}>
-                    <div className={`border-[2px] font-semibold flex items-center justify-center p-[2px] rounded-md ${transaction.type === 'EXPENSE' ? 'text-red-500' : 'text-green-500'} capitalize`}>
-                      {transaction.type.toLowerCase()}
-                    </div>
-                  </td>
-                  <td className='p-2 text-xs'>{formatDate(new Date(transaction.createdAt)).beautifyDate}</td>
-                  <td>
-                    <div className='flex items-center gap-1'>
-                      <button onClick={() => deleteTransaction(transaction.id)} className='bg-red-500 text-white py-1 px-2 text-xs rounded-md'>Delete</button>
-                      <button onClick={() => handleEdit(transaction)} className='bg-yellow-500 text-white py-1 px-2 text-xs rounded-md'>Edit</button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {dailyTransactions.length === 0 ? (
+              <tr>
+                <td colSpan={6} className='px-4 py-16 text-center'>
+                  <div className='text-sm font-medium text-slate-500'>No transactions for this day</div>
+                  <div className='mt-1 text-sm text-slate-400'>
+                    Add a transaction or pick another date to see activity.
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              dailyTransactions
+                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                .map((transaction) => (
+                  <tr
+                    key={transaction.id}
+                    className='border-b border-slate-100 transition-colors duration-150 hover:bg-slate-50'
+                  >
+                    <td className='px-4 py-3 text-sm font-medium text-slate-800'>{transaction.title}</td>
+                    <td className='whitespace-nowrap px-4 py-3 text-sm font-medium text-slate-800'>
+                      {formatAmount(transaction.amount, 'USD')}
+                    </td>
+                    <td className='px-4 py-3 text-sm text-slate-600'>
+                      <div className='flex items-center gap-2'>
+                        <span
+                          className='inline-block h-2.5 w-2.5 rounded-full'
+                          style={{ backgroundColor: transaction.category.color }}
+                        ></span>
+                        {transaction.category.name}
+                      </div>
+                    </td>
+                    <td className='px-4 py-3'>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                          transaction.type === 'EXPENSE'
+                            ? 'bg-red-50 text-red-600'
+                            : 'bg-emerald-50 text-emerald-600'
+                        } capitalize`}
+                      >
+                        {transaction.type.toLowerCase()}
+                      </span>
+                    </td>
+                    <td className='whitespace-nowrap px-4 py-3 text-sm text-slate-600'>
+                      {formatDate(new Date(transaction.createdAt)).beautifyDate}
+                    </td>
+                    <td className='px-4 py-3'>
+                      <div className='flex items-center gap-2'>
+                        <button
+                          onClick={() => handleEdit(transaction)}
+                          className='rounded-md bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-amber-600 cursor-pointer'
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => deleteTransaction(transaction.id)}
+                          className='rounded-md bg-red-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-red-600 cursor-pointer'
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
