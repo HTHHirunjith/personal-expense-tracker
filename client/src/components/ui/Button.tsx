@@ -2,15 +2,17 @@ import React from 'react'
 
 interface ButtonProps {
   label: string
+  icon?: React.ReactNode
   onClick?: () => void
 }
 
-const Button: React.FC<ButtonProps> = ({ label, onClick }) => {
+const Button: React.FC<ButtonProps> = ({ label, icon, onClick }) => {
   return (
     <button
-      className="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline transition duration-300 ease-in-out cursor-pointer"
+      className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200 focus:outline-none cursor-pointer"
       onClick={onClick}
     >
+      {icon}
       {label}
     </button>
   )

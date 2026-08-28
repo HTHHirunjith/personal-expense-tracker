@@ -188,7 +188,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }
 
   return (
-    <div className='relative flex h-screen bg-gray-100 overflow-auto z-10'>
+    <div className='relative flex h-screen bg-slate-100 text-gray-800 overflow-auto z-10'>
       <Leftbar />
 
       <Topbar>
