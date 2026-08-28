@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import CardItem from './CardItem'
+import { MdTrendingDown, MdTrendingUp, MdAccountBalanceWallet } from 'react-icons/md'
 import { useReportStore } from '../../stores/useReportStore'
 import { useApiClient } from '../../hooks/useApiClient'
 import { formatDate } from '../../utils/formatDate'
@@ -28,10 +29,25 @@ const TotalCardList: React.FC = () => {
   }, [transactions])
 
   return (
-    <div className='flex items-center gap-4 w-full'>
-      <CardItem title='Monthly Expenses' amount={monthlyExpense} />
-      <CardItem title='Monthly Income' amount={monthlyIncome} />
-      <CardItem title='Total Balance' amount={balance} />
+    <div className='flex items-stretch gap-4 w-full'>
+      <CardItem
+        title='Monthly Expenses'
+        amount={monthlyExpense}
+        icon={<MdTrendingDown size={20} />}
+        accentClass='bg-rose-50 text-rose-500'
+      />
+      <CardItem
+        title='Monthly Income'
+        amount={monthlyIncome}
+        icon={<MdTrendingUp size={20} />}
+        accentClass='bg-emerald-50 text-emerald-600'
+      />
+      <CardItem
+        title='Total Balance'
+        amount={balance}
+        icon={<MdAccountBalanceWallet size={20} />}
+        accentClass='bg-blue-50 text-blue-600'
+      />
     </div>
   )
 }
