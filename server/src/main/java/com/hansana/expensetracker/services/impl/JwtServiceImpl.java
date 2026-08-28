@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,17 @@ import java.util.function.Function;
 @Service
 public class JwtServiceImpl implements JwtService {
 
-    private static final String SECRET_KEY = "HDFKCYBIR74IR87838TR384TR3643864TRC863T48638463846TR8263TRBC8264TRBC862T48R263TR8";
+    private final String secretKey;
+
+    public JwtServiceImpl(@Value("${jwt.secret}") String secretKey) {
+        this.secretKey = secretKey;
+        if (secretKey == null || secretKey.isBlank()) {
+            throw new IllegalStateException("The JWT signing secret is not configured. Set the JWT_SECRET environment variable.");
+        }
+        if (secretKey.trim().length() < 32) {
+            throw new IllegalStateException("The JWT signing secret must be at least 32 characters long (HS256 requires a 256-bit key).");
+        }
+    }
 
     @Override
     public String getToken(UserDetails user) {
@@ -48,7 +59,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private Key getKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

@@ -1,0 +1,27 @@
+# Copy this file to `server/src/main/resources/application.properties`
+# and fill in the real values for your local environment.
+# The real application.properties file is git-ignored and never committed.
+
+spring.application.name=server
+
+# PostgreSQL connection (externalized via environment variables)
+# DB_HOST / DB_PORT / DB_NAME / DB_USERNAME have safe local defaults.
+# DB_PASSWORD is a secret: it must be supplied via the DB_PASSWORD environment variable.
+spring.datasource.url=jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:expense_tracker}
+spring.datasource.username=${DB_USERNAME:postgres}
+spring.datasource.password=${DB_PASSWORD}
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# JWT signing secret (REQUIRED - fail fast at startup if missing)
+# Supply it via the JWT_SECRET environment variable.
+# Must be at least 32 characters (HS256 requires >= 256-bit key).
+jwt.secret=${JWT_SECRET}
+
+# CORS allowed origin for the frontend dev server
+app.cors.allowed-origins=${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
+# hibernate settings
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true

@@ -56,13 +56,50 @@ These instructions assume a local development setup on Windows.
 
 ### Database Setup
 
-PostgreSQL is required. Create a database for the application.
+PostgreSQL is required. Create a database for the application (for example `expense_tracker`).
 
-The local database configuration lives in the git-ignored file:
+All secrets and environment-specific values are **externalized to environment variables**. No real credentials are committed to the repository.
 
-`server/src/main/resources/application.properties`
+### Environment Variables
 
-Edit that file to set the connection URL, username, and password for your local PostgreSQL instance. The values in this file are local-only and are not committed to the repository.
+The backend reads the following environment variables. Only the two marked **REQUIRED** are mandatory.
+
+| Variable | Required | Default | Description |
+| --- | --- | --- | --- |
+| `DB_HOST` | no | `localhost` | PostgreSQL host |
+| `DB_PORT` | no | `5432` | PostgreSQL port |
+| `DB_NAME` | no | `expense_tracker` | Database name |
+| `DB_USERNAME` | no | `postgres` | Database user |
+| `DB_PASSWORD` | **REQUIRED** | — | Database password |
+| `JWT_SECRET` | **REQUIRED** | — | JWT signing secret (min 32 chars) |
+| `CORS_ALLOWED_ORIGINS` | no | `http://localhost:5173` | Allowed frontend origin |
+
+On Windows (PowerShell), set the required variables **in the same terminal** you will use to start the backend. `mvn spring-boot:run` must inherit them, so run these before Maven in that window:
+
+```powershell
+# Run in the SAME PowerShell window that will launch `mvn spring-boot:run`
+$env:DB_PASSWORD = "your_database_password"
+$env:JWT_SECRET = "a_long_random_secret_of_at_least_32_characters"
+$env:CORS_ALLOWED_ORIGINS = "http://localhost:5173"
+```
+
+After setting them, start the backend in that same window. The variables must exist in the same process tree as Maven; opening a new terminal does not inherit them.
+
+To make them persistent for all **future** terminals, use `setx` (or the "Edit environment variables" dialog). Note that `setx` affects only newly started terminals — it does **not** apply to the terminal that is already open. Restart the terminal after running `setx`:
+
+```powershell
+setx DB_PASSWORD "your_database_password"
+setx JWT_SECRET "a_long_random_secret_of_at_least_32_characters"
+setx CORS_ALLOWED_ORIGINS "http://localhost:5173"
+```
+
+If the backend fails to start with `Could not resolve placeholder 'JWT_SECRET'`, the variable is not reaching the Spring JVM — set it with `$env:JWT_SECRET` in the same terminal that launches Maven (or restart the terminal after `setx`) and retry.
+
+A tracked template with placeholders is provided at:
+
+`server/src/main/resources/application.properties.example`
+
+Copy it to `server/src/main/resources/application.properties` (which is git-ignored) if you need to adjust non-environment settings. The secrets themselves always come from the environment variables above.
 
 ### Running the Backend
 
@@ -72,7 +109,9 @@ Edit that file to set the connection URL, username, and password for your local 
    cd server
    ```
 
-2. Start the Spring Boot application:
+2. Make sure the required environment variables (`DB_PASSWORD`, `JWT_SECRET`) are set.
+
+3. Start the Spring Boot application:
 
    ```bash
    mvn spring-boot:run
@@ -84,7 +123,7 @@ Edit that file to set the connection URL, username, and password for your local 
    .\mvnw.cmd spring-boot:run
    ```
 
-The backend will be available at `http://localhost:8080`.
+The backend will be available at `http://localhost:8080`. If `JWT_SECRET` is missing or too short, the application refuses to start and prints a clear error.
 
 ### Running the Frontend
 
@@ -100,7 +139,9 @@ The backend will be available at `http://localhost:8080`.
    npm install
    ```
 
-3. Start the Vite development server:
+3. (Optional) Configure the backend API URL. Copy `client/.env.example` to `client/.env.local` and set `VITE_API_BASE_URL` if your backend is not at the default `http://localhost:8080/api/v1`. This file is git-ignored.
+
+4. Start the Vite development server:
 
    ```bash
    npm run dev

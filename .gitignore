@@ -13,9 +13,14 @@ server/target/
 .env
 .env.*
 !.env.example
+client/.env
+client/.env.local
+client/.env.production
 
 # Local application configuration containing secrets
 server/src/main/resources/application.properties
+
+# Kept trackable: server/src/main/resources/application.properties.example
 
 # OS files
 .DS_Store
