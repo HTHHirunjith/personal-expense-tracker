@@ -9,7 +9,9 @@ const SubmitButton: React.FC<SubmitButtonProps> = ({ text, isDisabled }) => {
   return (
     <button
       type="submit"
-      className={`flex-1 bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline transition duration-300 ease-in-out ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      className={`w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600/30 ${
+        isDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-blue-700'
+      }`}
       disabled={isDisabled}
     >
       {text}

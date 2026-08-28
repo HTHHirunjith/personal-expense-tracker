@@ -3,6 +3,7 @@ import React from 'react'
 interface Option {
   id: string
   name: string
+  color?: string
 }
 
 interface SelectInputProps {
@@ -16,10 +17,10 @@ interface SelectInputProps {
 
 const SelectInput: React.FC<SelectInputProps> = ({ onChange, name, value, options, label, required }) => {
   return (
-    <>
-      <label className='font-semibold text-xs -mb-2'>{label}</label>
+    <div className='flex flex-col gap-1.5'>
+      <label className='text-sm font-medium text-slate-700'>{label}</label>
       <select
-        className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
+        className='w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 transition-colors focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20'
         onChange={onChange}
         name={name}
         value={value}
@@ -34,7 +35,7 @@ const SelectInput: React.FC<SelectInputProps> = ({ onChange, name, value, option
           )
         })}
       </select>
-    </>
+    </div>
   )
 }
 

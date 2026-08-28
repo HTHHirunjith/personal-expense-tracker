@@ -32,65 +32,79 @@ const CreateTransactionForm: React.FC<CreateTransactionFormProps> = ({
 }) => {
   return (
     <FormDialog isOpen={isOpen} onClose={onClose} title={title} onSubmit={onSubmit}>
-      <TextInput
-        label='Title'
-        placeholder='Enter a title'
-        onChange={handleChange}
-        type='text'
-        name='title'
-        value={transactionInput.title}
-        required
-      />
-      {error.title && <p className='text-red-500 text-xs -mt-3'>Title is required</p>}
-      <TextInput
-        label='Amount'
-        placeholder='Enter the transaction amount'
-        onChange={handleChange}
-        type='number'
-        name='amount'
-        value={transactionInput.amount}
-        required
-      />
-      {error.amount && <p className='text-red-500 text-xs -mt-3'>Amount is required</p>}
-      <SelectInput
-        label='Type'
-        onChange={handleSelectChange}
-        name='type'
-        value={transactionInput.type}
-        options={[{ id: 'EXPENSE', name: 'EXPENSE' }, { id: 'INCOME', name: 'INCOME' }]}
-        required
-      />
-      {error.type && <p className='text-red-500 text-xs -mt-3'>Type is required</p>}
-      <TextInput
-        label='Description'
-        placeholder='Enter the transaction description'
-        onChange={handleChange}
-        type='text'
-        name='description'
-        value={transactionInput.description}
-        required
-      />
-      {error.description && <p className='text-red-500 text-xs -mt-3'>Description is required</p>}
-      <SelectInput
-        label='Category'
-        onChange={handleSelectChange}
-        name='categoryId'
-        value={transactionInput.categoryId}
-        options={categories}
-        required
-      />
-      {error.categoryId && <p className='text-red-500 text-xs -mt-3'>Category is required</p>}
-      <div className='flex items-center w-full gap-2'>
-        <SubmitButton
-          text='Create transaction'
-          isDisabled={error.title || error.amount || error.type || error.description || error.categoryId}
+      <div className='flex flex-col gap-1.5'>
+        <TextInput
+          label='Title'
+          placeholder='Enter a title'
+          onChange={handleChange}
+          type='text'
+          name='title'
+          value={transactionInput.title}
+          required
         />
-        <button
-          className='flex-1 bg-yellow-300 hover:bg-yellow-900 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline transition duration-300 ease-in-out'
-          onClick={openCategoryModal}
-        >
-          Add Category
-        </button>
+        {error.title && <p className='text-xs text-red-500'>Title is required</p>}
+      </div>
+      <div className='flex flex-col gap-1.5'>
+        <TextInput
+          label='Amount'
+          placeholder='Enter the transaction amount'
+          onChange={handleChange}
+          type='number'
+          name='amount'
+          value={transactionInput.amount}
+          required
+        />
+        {error.amount && <p className='text-xs text-red-500'>Amount is required</p>}
+      </div>
+      <div className='flex flex-col gap-1.5'>
+        <SelectInput
+          label='Type'
+          onChange={handleSelectChange}
+          name='type'
+          value={transactionInput.type}
+          options={[{ id: 'EXPENSE', name: 'EXPENSE' }, { id: 'INCOME', name: 'INCOME' }]}
+          required
+        />
+        {error.type && <p className='text-xs text-red-500'>Type is required</p>}
+      </div>
+      <div className='flex flex-col gap-1.5'>
+        <TextInput
+          label='Description'
+          placeholder='Enter the transaction description'
+          onChange={handleChange}
+          type='text'
+          name='description'
+          value={transactionInput.description}
+          required
+        />
+        {error.description && <p className='text-xs text-red-500'>Description is required</p>}
+      </div>
+      <div className='flex flex-col gap-1.5'>
+        <SelectInput
+          label='Category'
+          onChange={handleSelectChange}
+          name='categoryId'
+          value={transactionInput.categoryId}
+          options={categories}
+          required
+        />
+        {error.categoryId && <p className='text-xs text-red-500'>Category is required</p>}
+      </div>
+      <div className='mt-1 flex items-center gap-3'>
+        <div className='flex-1'>
+          <SubmitButton
+            text='Create transaction'
+            isDisabled={error.title || error.amount || error.type || error.description || error.categoryId}
+          />
+        </div>
+        <div className='flex-1'>
+          <button
+            className='w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 cursor-pointer'
+            onClick={openCategoryModal}
+          >
+            Add Category
+          </button>
+        </div>
       </div>
     </FormDialog>
   )
