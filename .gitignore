@@ -1,0 +1,22 @@
+# IDE / Editor
+.vscode/
+.idea/
+
+# Frontend
+client/node_modules/
+client/dist/
+
+# Backend
+server/target/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Local application configuration containing secrets
+server/src/main/resources/application.properties
+
+# OS files
+.DS_Store
+Thumbs.db
